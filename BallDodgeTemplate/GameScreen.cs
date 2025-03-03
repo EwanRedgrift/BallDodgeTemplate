@@ -13,11 +13,14 @@ namespace BallDodgeTemplate
 {
     public partial class GameScreen : UserControl
     {
+        public static int lives = 3;
+        public static int points = 0;
+
         public static int screenWidth;
         public static int screenHeight;
 
         bool leftArrowDown, rightArrowDown, upArrowDown, downArrowDown;
-        
+
         Ball chaseBall;
         List<Ball> balls = new List<Ball>();
         Player hero;
@@ -31,14 +34,14 @@ namespace BallDodgeTemplate
             InitializeComponent();
 
             screenWidth = this.Width;
-            screenHeight = this.Height; 
+            screenHeight = this.Height;
 
             InitializeGame();
         }
-        
+
         public void InitializeGame()
         {
-            hero = new Player();    
+            hero = new Player();
 
             int x = randGen.Next(20, this.Width - 50);
             int y = randGen.Next(20, this.Height - 50);
@@ -47,11 +50,7 @@ namespace BallDodgeTemplate
 
             for (int i = 0; i < 5; i++)
             {
-                x = randGen.Next(20, this.Width - 50);
-                y = randGen.Next(20, this.Height - 50);
-
-                Ball b = new Ball(x, y, 8, 8);
-                balls.Add(b);
+                CreateBall();
             }
         }
 
@@ -95,23 +94,82 @@ namespace BallDodgeTemplate
 
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            #region move code
+            // moving the hero
+            if (rightArrowDown == true)
+            {
+                hero.Move("right");
+            }
+
+            if (leftArrowDown == true)
+            {
+                hero.Move("left");
+            }
+
+            if (upArrowDown == true)
+            {
+                hero.Move("up");
+            }
+
+            if (downArrowDown == true)
+            {
+                hero.Move("down");
+            }
+
+            //moving the chase ball
             chaseBall.Move();
 
+            //moving enemies
             foreach (Ball b in balls)
             {
                 b.Move();
+            }
+            #endregion
+
+            if (hero.Collision(chaseBall))
+            {
+                points++;
+
+                CreateBall();
+            }
+
+            foreach (Ball b in balls)
+            {
+                if (hero.Collision(b))
+                {
+                    lives--;
+                }
+            }
+
+            if (lives == 0)
+            {
+                gameTimer.Stop();
             }
 
             Refresh();
         }
 
+        private void CreateBall()
+        {
+            int x = randGen.Next(20, this.Width - 50);
+            int y = randGen.Next(20, this.Height - 50);
+
+            Ball b = new Ball(x, y, 8, 8);
+            balls.Add(b);
+        }
+
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
+            //update labels
+            liveLabel.Text = $"Lives: {lives}";
+            pointsLabel.Text = $"Points: {points}";
+
+
             //chaseball
             e.Graphics.FillEllipse(greenBrush, chaseBall.x, chaseBall.y, chaseBall.size, chaseBall.size);
 
             //balls to avoid
-            foreach(Ball b in balls)
+            foreach (Ball b in balls)
             {
                 e.Graphics.FillEllipse(redBrush, b.x, b.y, b.size, b.size);
             }
