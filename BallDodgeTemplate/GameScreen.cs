@@ -122,7 +122,7 @@ namespace BallDodgeTemplate
             //moving enemies
             foreach (Ball b in balls)
             {
-                b.Move();
+                b.Move();  
             }
             #endregion
 
