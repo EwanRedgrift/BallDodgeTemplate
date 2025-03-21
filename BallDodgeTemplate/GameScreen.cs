@@ -27,7 +27,6 @@ namespace BallDodgeTemplate
 
         Random randGen = new Random();
         SolidBrush greenBrush = new SolidBrush(Color.Green);
-        SolidBrush redBrush = new SolidBrush(Color.Red);
 
         public GameScreen()
         {
