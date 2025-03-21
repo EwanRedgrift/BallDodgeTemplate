@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BallDodgeTemplate
@@ -27,6 +21,7 @@ namespace BallDodgeTemplate
 
         Random randGen = new Random();
         SolidBrush greenBrush = new SolidBrush(Color.Green);
+        SolidBrush redBrush = new SolidBrush(Color.Red);
 
         public GameScreen()
         {
@@ -42,10 +37,10 @@ namespace BallDodgeTemplate
         {
             hero = new Player();
 
-            int x = randGen.Next(20, this.Width - 50);
-            int y = randGen.Next(20, this.Height - 50);
+            int x = randGen.Next(0, 39);
+            int y = randGen.Next(0, 39);
 
-            chaseBall = new Ball(x, y, 8, 8);
+            chaseBall = new Ball(x, y, 1, 1);
 
             for (int i = 0; i < 5; i++)
             {
@@ -58,19 +53,32 @@ namespace BallDodgeTemplate
             switch (e.KeyCode)
             {
                 case Keys.Left:
-                    leftArrowDown = true;
+                    if (hero.heading != "right")  // Prevent reverse direction
+                    {
+                        hero.ChangeDirection("left");
+                    }
                     break;
                 case Keys.Right:
-                    rightArrowDown = true;
+                    if (hero.heading != "left")  // Prevent reverse direction
+                    {
+                        hero.ChangeDirection("right");
+                    }
                     break;
                 case Keys.Up:
-                    upArrowDown = true;
+                    if (hero.heading != "down")  // Prevent reverse direction
+                    {
+                        hero.ChangeDirection("up");
+                    }
                     break;
                 case Keys.Down:
-                    downArrowDown = true;
+                    if (hero.heading != "up")  // Prevent reverse direction
+                    {
+                        hero.ChangeDirection("down");
+                    }
                     break;
             }
         }
+
 
         private void GameScreen_KeyUp(object sender, KeyEventArgs e)
         {
@@ -93,88 +101,60 @@ namespace BallDodgeTemplate
 
         private void gameTimer_Tick(object sender, EventArgs e)
         {
-            #region move code
-            // moving the hero
-            if (rightArrowDown == true)
-            {
-                hero.Move("right");
-            }
+            // Continuously move the player in the current direction
+            hero.Move(hero.heading); // The player will keep moving in the last direction chosen
 
-            if (leftArrowDown == true)
-            {
-                hero.Move("left");
-            }
-
-            if (upArrowDown == true)
-            {
-                hero.Move("up");
-            }
-
-            if (downArrowDown == true)
-            {
-                hero.Move("down");
-            }
-
-            //moving the chase ball
-            chaseBall.Move();
-
-            //moving enemies
-            foreach (Ball b in balls)
-            {
-                b.Move();  
-            }
-            #endregion
-
+            // Check for collision with the chase ball
             if (hero.Collision(chaseBall))
             {
-                points++;
+                // Increase points for eating the chase ball
+                GameScreen.points++;
 
-                CreateBall();
+                // After the player eats the chase ball, generate a new chase ball at a random position
+                int x = randGen.Next(0, 39);
+                int y = randGen.Next(0, 39);
+                chaseBall = new Ball(x, y, 1, 1); // Reset chase ball with new random coordinates
             }
 
-            foreach (Ball b in balls)
-            {
-                if (hero.Collision(b))
-                {
-                    lives--;
-                }
-            }
-
-            if (lives == 0)
-            {
-                gameTimer.Stop();
-            }
-
+            // Refresh the screen to update the display
             Refresh();
         }
 
         private void CreateBall()
         {
-            int x = randGen.Next(20, this.Width - 50);
-            int y = randGen.Next(20, this.Height - 50);
+            int x = randGen.Next(0, 40);
+            int y = randGen.Next(0, 40);
 
-            Ball b = new Ball(x, y, 8, 8);
+            Ball b = new Ball(x, y, 20, 20);
             balls.Add(b);
         }
 
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
-            //update labels
+            // Update labels
             liveLabel.Text = $"Lives: {lives}";
             pointsLabel.Text = $"Points: {points}";
 
+            // Draw chase ball
+            e.Graphics.FillEllipse(greenBrush, chaseBall.row, chaseBall.column, chaseBall.size, chaseBall.size);
 
-            //chaseball
-            e.Graphics.FillEllipse(greenBrush, chaseBall.x, chaseBall.y, chaseBall.size, chaseBall.size);
-
-            //balls to avoid
+            // Draw balls to avoid
             foreach (Ball b in balls)
             {
-                e.Graphics.FillEllipse(redBrush, b.x, b.y, b.size, b.size);
+                e.Graphics.FillEllipse(redBrush, b.row, b.column, b.size, b.size);
             }
 
-            //hero
+            // Draw the player's body
+            foreach (Body segment in hero.bodyParts)
+            {
+                e.Graphics.FillRectangle(greenBrush, segment.x, segment.y, segment.width, segment.height);
+            }
+
+            // Draw the player's head
             e.Graphics.FillRectangle(greenBrush, hero.x, hero.y, hero.width, hero.height);
+
+            pointsLabel.Text = $"Points: {points}";
         }
+
     }
 }
