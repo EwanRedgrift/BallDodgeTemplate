@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 internal class Player
 {
     public int x, y;
-    public int width = 20;
-    public int height = 20;
-    public int speed = 6;
+    public int width = 100;
+    public int height = 100;
+    public int speed = 10;
+
+    int spacing = 100;
 
     public string heading = "up";
 
@@ -33,39 +35,39 @@ internal class Player
         int prevX = x;
         int prevY = y;
 
-        if (direction == "right" && x < GameScreen.screenWidth - width)
+        // Move the player (head) based on direction
+        switch (direction)
         {
-            x += speed;
-        }
-        else if (direction == "left" && x > 0)
-        {
-            x -= speed;
-        }
-        else if (direction == "up" && y > 0)
-        {
-            y -= speed;
-        }
-        else if (direction == "down" && y < GameScreen.screenHeight - height)
-        {
-            y += speed;
+            case "right":
+                if (x < GameScreen.screenWidth - width) x += speed;
+                break;
+            case "left":
+                if (x > 0) x -= speed;
+                break;
+            case "up":
+                if (y > 0) y -= speed;
+                break;
+            case "down":
+                if (y < GameScreen.screenHeight - height) y += speed;
+                break;
         }
 
-        // Move body segments to follow the player, spaced out
+        // Move body parts (follow the player in reverse order)
         if (bodyParts.Count > 0)
         {
             for (int i = bodyParts.Count - 1; i > 0; i--)
             {
+                // Move each body part to the position of the one in front of it
                 bodyParts[i].x = bodyParts[i - 1].x;
                 bodyParts[i].y = bodyParts[i - 1].y;
             }
-            // Move the first body segment to where the player was
+
+            // The first body part should take the previous head position, but spaced out
             bodyParts[0].x = prevX;
             bodyParts[0].y = prevY;
         }
-
-        // Update the heading
-        heading = direction;
     }
+
 
     public bool Collision(Ball b)
     {
@@ -87,10 +89,9 @@ internal class Player
         return false;
     }
 
+
     private void AddBodySegment()
     {
-        // Spacing factor between body parts
-        int spacing = 25;
 
         // Create new body segment and position it at the current head, with spacing
         int newX;

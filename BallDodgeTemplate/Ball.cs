@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Security.Policy;
 using System.Text;
@@ -10,31 +11,12 @@ namespace BallDodgeTemplate
     internal class Ball
     {
         public int row, column;
-        public int size = 8;
-        public int xSpeed, ySpeed;
+        public int size = 100;
 
-        public Ball(int _x, int _y, int _xSpeed, int _ySpeed)
+        public Ball(int _x, int _y)
         {
-            row = _x * 20;
-            column = _y * 20;
-            xSpeed = _xSpeed;
-            ySpeed = _ySpeed;
+            row = _x * 100;
+            column = _y * 100; 
         }
-
-        //public void Move()
-        //{
-        //    x += xSpeed;
-        //    y += ySpeed;
-
-        //    if (x < 0 || x > GameScreen.screenWidth - size)
-        //    {
-        //        xSpeed = -xSpeed;
-        //    }
-
-        //    if (y < 0 || y > GameScreen.screenHeight - size)
-        //    {
-        //        ySpeed = -ySpeed;
-        //    }
-        //}
     }
 }

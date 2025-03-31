@@ -13,15 +13,21 @@ namespace BallDodgeTemplate
         public static int screenWidth;
         public static int screenHeight;
 
+        int boardSize = 8;
+        int squareSize = 100;
+
         bool leftArrowDown, rightArrowDown, upArrowDown, downArrowDown;
 
-        Ball chaseBall;
-        List<Ball> balls = new List<Ball>();
+        Ball food;
+        List<Ball> ball = new List<Ball>();
         Player hero;
 
         Random randGen = new Random();
         SolidBrush greenBrush = new SolidBrush(Color.Green);
         SolidBrush redBrush = new SolidBrush(Color.Red);
+            
+        Brush lightBrush = Brushes.LightGray;
+        Brush darkBrush = Brushes.Gray;
 
         public GameScreen()
         {
@@ -36,17 +42,14 @@ namespace BallDodgeTemplate
         public void InitializeGame()
         {
             hero = new Player();
+            int x = randGen.Next(0, 8);
+            int y = randGen.Next(0, 8);
 
-            int x = randGen.Next(0, 39);
-            int y = randGen.Next(0, 39);
+            food = new Ball(x, y); // Create food ball at random position
 
-            chaseBall = new Ball(x, y, 1, 1);
-
-            for (int i = 0; i < 5; i++)
-            {
-                CreateBall();
-            }
         }
+
+
 
         private void GameScreen_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
         {
@@ -104,45 +107,43 @@ namespace BallDodgeTemplate
             // Continuously move the player in the current direction
             hero.Move(hero.heading); // The player will keep moving in the last direction chosen
 
-            // Check for collision with the chase ball
-            if (hero.Collision(chaseBall))
+            // Check for collision with the food ball
+            if (hero.Collision(food))
             {
-                // Increase points for eating the chase ball
-                GameScreen.points++;
-
-                // After the player eats the chase ball, generate a new chase ball at a random position
-                int x = randGen.Next(0, 39);
-                int y = randGen.Next(0, 39);
-                chaseBall = new Ball(x, y, 1, 1); // Reset chase ball with new random coordinates
+                // After the player eats the food ball, generate a new food ball at a random position
+                int x = randGen.Next(0, 8);
+                int y = randGen.Next(0, 8);
+                food = new Ball(x, y); // Reset food ball with new random coordinates
             }
 
             // Refresh the screen to update the display
             Refresh();
         }
 
-        private void CreateBall()
-        {
-            int x = randGen.Next(0, 40);
-            int y = randGen.Next(0, 40);
-
-            Ball b = new Ball(x, y, 20, 20);
-            balls.Add(b);
-        }
-
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
+            for (int i = 0; i < boardSize + 1; i++) //Draws board
+            {
+                for (int j = 0; j < boardSize + 1; j++)
+                {
+                    if ((i + j) % 2 == 0)
+                    {
+                        e.Graphics.FillRectangle(lightBrush, squareSize * (j - 1), squareSize * (i - 1), squareSize, squareSize);
+                    }
+                    else
+                    {
+                        e.Graphics.FillRectangle(darkBrush, squareSize * (j - 1), squareSize * (i - 1), squareSize, squareSize);
+                    }
+                }
+            }
+
             // Update labels
             liveLabel.Text = $"Lives: {lives}";
             pointsLabel.Text = $"Points: {points}";
 
-            // Draw chase ball
-            e.Graphics.FillEllipse(greenBrush, chaseBall.row, chaseBall.column, chaseBall.size, chaseBall.size);
+            // Draw food ball
+            e.Graphics.FillEllipse(greenBrush, food.row, food.column, 100, 100);
 
-            // Draw balls to avoid
-            foreach (Ball b in balls)
-            {
-                e.Graphics.FillEllipse(redBrush, b.row, b.column, b.size, b.size);
-            }
 
             // Draw the player's body
             foreach (Body segment in hero.bodyParts)
@@ -152,8 +153,6 @@ namespace BallDodgeTemplate
 
             // Draw the player's head
             e.Graphics.FillRectangle(greenBrush, hero.x, hero.y, hero.width, hero.height);
-
-            pointsLabel.Text = $"Points: {points}";
         }
 
     }
