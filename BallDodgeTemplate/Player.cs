@@ -39,18 +39,22 @@ internal class Player
         switch (direction)
         {
             case "right":
-                if (x < GameScreen.screenWidth - width) x += speed;
+                if (x < GameScreen.screenWidth - width) x += 100; // Move by 50 pixels, slower speed
                 break;
             case "left":
-                if (x > 0) x -= speed;
+                if (x > 0) x -= 25; // Move by 50 pixels, slower speed
                 break;
             case "up":
-                if (y > 0) y -= speed;
+                if (y > 0) y -= 25; // Move by 50 pixels, slower speed
                 break;
             case "down":
-                if (y < GameScreen.screenHeight - height) y += speed;
+                if (y < GameScreen.screenHeight - height) y += 100; // Move by 100 pixels, slower speed
                 break;
         }
+
+        // Ensure the player is aligned to the grid (multiples of 100)
+        x = (x / 100) * 100; // Round to nearest grid multiple (100 pixels step size)
+        y = (y / 100) * 100; // Round to nearest grid multiple (100 pixels step size)
 
         // Move body parts (follow the player in reverse order)
         if (bodyParts.Count > 0)
@@ -69,13 +73,14 @@ internal class Player
     }
 
 
+
     public bool Collision(Ball b)
     {
         // Check collision between player (head) and ball
         Rectangle heroRec = new Rectangle(x, y, width, height);
-        Rectangle chaseRec = new Rectangle(b.row, b.column, b.size, b.size);
+        Rectangle foodRec = new Rectangle(b.row, b.column, b.size, b.size);
 
-        if (heroRec.IntersectsWith(chaseRec))
+        if (heroRec.IntersectsWith(foodRec))
         {
             // Player eats the ball, increase score and grow (add a body segment)
             GameScreen.points++;
@@ -132,4 +137,21 @@ internal class Player
         bodyParts.Add(newBodySegment);
     }
 
+    private void HandleWallCollision()
+    {
+        // Reduce lives or end the game
+        GameScreen.lives--;
+        if (GameScreen.lives <= 0)
+        {
+            // Game Over logic
+        }
+        else
+        {
+            // Reset the player to starting position after hitting the wall
+            x = GameScreen.screenWidth / 2 - width / 2;
+            y = GameScreen.screenHeight / 2 - height / 2;
+            bodyParts.Clear(); // Clear body parts since the player "dies"
+            heading = "up"; // Reset the direction
+        }
+    }
 }

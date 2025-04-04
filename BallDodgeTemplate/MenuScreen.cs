@@ -12,6 +12,7 @@ namespace BallDodgeTemplate
 {
     public partial class MenuScreen : UserControl
     {
+
         public MenuScreen()
         {
             InitializeComponent();
@@ -22,20 +23,16 @@ namespace BallDodgeTemplate
             Form1.ChangeScreen(this, new GameScreen());
         }
 
-        private void mediumButton_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void hardButton_Click(object sender, EventArgs e)
-        {
-
-        }
-
         private void exitButton_Click(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            titleLabel.Text += "e";
+
+            titleLabel.Location = new Point(titleLabel.Location.X-18,titleLabel.Location.Y) ;
+        }
     }
 }

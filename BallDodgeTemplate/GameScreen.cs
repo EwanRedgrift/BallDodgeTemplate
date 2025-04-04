@@ -138,11 +138,10 @@ namespace BallDodgeTemplate
             }
 
             // Update labels
-            liveLabel.Text = $"Lives: {lives}";
             pointsLabel.Text = $"Points: {points}";
 
             // Draw food ball
-            e.Graphics.FillEllipse(greenBrush, food.row, food.column, 100, 100);
+            e.Graphics.FillEllipse(redBrush, food.row, food.column, 100, 100);
 
 
             // Draw the player's body
