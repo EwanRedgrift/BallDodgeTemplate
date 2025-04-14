@@ -137,21 +137,20 @@ internal class Player
         bodyParts.Add(newBodySegment);
     }
 
-    private void HandleWallCollision()
+    public bool CheckBodyCollision()
     {
-        // Reduce lives or end the game
-        GameScreen.lives--;
-        if (GameScreen.lives <= 0)
+        // Check if the player collides with any of its body parts (excluding the head)
+        for (int i = 1; i < bodyParts.Count; i++) // Start from 1 to skip the head (index 0)
         {
-            // Game Over logic
+            Rectangle headRect = new Rectangle(x, y, width, height);
+            Rectangle bodyRect = new Rectangle(bodyParts[i].x, bodyParts[i].y, bodyParts[i].width, bodyParts[i].height);
+
+            if (headRect.IntersectsWith(bodyRect)) // Check if the head intersects with the body part
+            {
+                GameScreen.points += 1000; // Add points when the player collides with itself
+                return true;
+            }
         }
-        else
-        {
-            // Reset the player to starting position after hitting the wall
-            x = GameScreen.screenWidth / 2 - width / 2;
-            y = GameScreen.screenHeight / 2 - height / 2;
-            bodyParts.Clear(); // Clear body parts since the player "dies"
-            heading = "up"; // Reset the direction
-        }
+        return false;
     }
 }

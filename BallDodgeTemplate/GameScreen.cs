@@ -7,7 +7,6 @@ namespace BallDodgeTemplate
 {
     public partial class GameScreen : UserControl
     {
-        public static int lives = 3;
         public static int points = 0;
 
         public static int screenWidth;
@@ -24,6 +23,7 @@ namespace BallDodgeTemplate
 
         Random randGen = new Random();
         SolidBrush greenBrush = new SolidBrush(Color.Green);
+        SolidBrush darkgreenBrush = new SolidBrush(Color.DarkGreen);
         SolidBrush redBrush = new SolidBrush(Color.Red);
             
         Brush lightBrush = Brushes.LightGray;
@@ -104,19 +104,21 @@ namespace BallDodgeTemplate
 
         private void gameTimer_Tick(object sender, EventArgs e)
         {
-            // Continuously move the player in the current direction
-            hero.Move(hero.heading); // The player will keep moving in the last direction chosen
+            hero.Move(hero.heading);
 
-            // Check for collision with the food ball
+
+             if (hero.CheckBodyCollision())
+             {
+                  Form1.ChangeScreen(this, new MenuScreen());
+             }
+
             if (hero.Collision(food))
             {
-                // After the player eats the food ball, generate a new food ball at a random position
                 int x = randGen.Next(0, 8);
                 int y = randGen.Next(0, 8);
-                food = new Ball(x, y); // Reset food ball with new random coordinates
+                food = new Ball(x, y); 
             }
 
-            // Refresh the screen to update the display
             Refresh();
         }
 
@@ -137,22 +139,19 @@ namespace BallDodgeTemplate
                 }
             }
 
-            // Update labels
             pointsLabel.Text = $"Points: {points}";
 
-            // Draw food ball
+
             e.Graphics.FillEllipse(redBrush, food.row, food.column, 100, 100);
 
 
-            // Draw the player's body
             foreach (Body segment in hero.bodyParts)
             {
                 e.Graphics.FillRectangle(greenBrush, segment.x, segment.y, segment.width, segment.height);
             }
 
-            // Draw the player's head
-            e.Graphics.FillRectangle(greenBrush, hero.x, hero.y, hero.width, hero.height);
-        }
 
+            e.Graphics.FillRectangle(darkgreenBrush, hero.x, hero.y, hero.width, hero.height);
+        }
     }
 }
